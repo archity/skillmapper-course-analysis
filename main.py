@@ -5,6 +5,8 @@ from nltk.corpus import stopwords
 from collections import Counter
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
+from textblob import TextBlob
+from textblob.sentiments import NaiveBayesAnalyzer
 
 
 def load_and_make_table(file="./data/sample_50_reviews.csv"):
@@ -68,7 +70,44 @@ def top_words_and_wordcloud(df_clean):
     plt.savefig("img/wordcloud.png", format="png", dpi=my_dpi)
 
 
+def textblob_sentiment_analysis(data_df, nb=False):
+    if nb is True:
+        pol = lambda x: TextBlob(x, analyzer=NaiveBayesAnalyzer()).sentiment.p_pos\
+                        - TextBlob(x, analyzer=NaiveBayesAnalyzer()).sentiment.p_neg
+    else:
+        pol = lambda x: TextBlob(x).sentiment.polarity
+    sub = lambda x: TextBlob(x).sentiment.subjectivity
+    textblob_df = pd.DataFrame(columns=["polarity", "subjectivity"])
+    textblob_df["polarity"] = data_df["review"].apply(pol)
+    textblob_df["subjectivity"] = data_df["review"].apply(sub)
+
+    # Scatter plot
+    if not os.path.exists("img"):
+        os.makedirs("img")
+    my_dpi = 200
+    plt.rcParams['figure.figsize'] = [10, 8]
+    plt.figure(figsize=(1280 / my_dpi, 720 / my_dpi), dpi=my_dpi)
+    x = textblob_df.polarity
+    y = textblob_df.subjectivity
+    plt.scatter(x, y, color='blue')
+    plt.xlim(-1, +1)
+    if nb is True:
+        plt.title('Sentiment Analysis\nTextBlob + NaiveBayesAnalyzer', fontsize=14)
+    else:
+        plt.title('Sentiment Analysis\nTextBlob', fontsize=14)
+    plt.xlabel('<-- Negative  - - - - - - - - - - - - - - - - Neutral - - - - - - - - - - - - - - - -  Positive -->',
+               fontsize=8)
+    plt.ylabel('<-- Facts  ----------------  Opinions -->', fontsize=8)
+    plt.tight_layout(pad=1)
+    if nb is True:
+        plt.savefig("img/plot_sentiment_nb_textblob.png", format="png", dpi=my_dpi)
+    else:
+        plt.savefig("img/plot_sentiment_textblob.png", format="png", dpi=my_dpi)
+
+
 if __name__ == '__main__':
     table_df = load_and_make_table()
     df_clean = clean_the_data(table_df)
-    top_words_and_wordcloud(df_clean)
+    # top_words_and_wordcloud(df_clean)
+    # textblob_sentiment_analysis(df_clean)
+    textblob_sentiment_analysis(df_clean, nb=True)
