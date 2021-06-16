@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 from textblob import TextBlob
 from textblob.sentiments import NaiveBayesAnalyzer
+import spacy
 
 
 def load_and_make_table(file="./data/sample_50_reviews.csv"):
@@ -103,6 +104,26 @@ def textblob_sentiment_analysis(data_df, nb=False):
         plt.savefig("img/plot_sentiment_nb_textblob.png", format="png", dpi=my_dpi)
     else:
         plt.savefig("img/plot_sentiment_textblob.png", format="png", dpi=my_dpi)
+
+
+def spacy_similarity():
+    # pip install spacy==3.0.6
+    # python -m spacy download en_core_web_sm
+    nlp = spacy.load("en_core_web_sm")
+
+    """
+    Hypothetical testing scenario
+    
+    doc_gold = nlp(course_gold_reviews)
+    
+    doc1 = nlp(course1_reviews)
+    doc2 = nlp(course2_reviews)
+    doc3 = nlp(course3_reviews)
+    
+    doc_gold.similarity(doc1)
+    doc_gold.similarity(doc2)
+    doc_gold.similarity(doc3)
+    """
 
 
 if __name__ == '__main__':
